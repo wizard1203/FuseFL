@@ -15,7 +15,7 @@ enable_wandb=True
 
 # local_ep=1
 
-# num_users=10
+# num_users=5
 
 # alpha=0.5
 # local_ep=200
@@ -49,7 +49,7 @@ enable_wandb=True
 
 
 
-num_users=20
+num_users=5
 
 alpha=0.5
 local_ep=200
