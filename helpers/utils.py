@@ -199,6 +199,40 @@ def add_shape(image, shape, location, size, color):
     return image
 
 
+class BackdoorDS(Dataset):
+    """An abstract Dataset class wrapped around Pytorch Dataset class.
+    """
+
+    def __init__(self, dataset, backdoor_size=10,
+                 orig_image_size=32, mode="seq"):
+        self.dataset = dataset
+        self.shapes = ['circle', 'triangle', 'square', 'ellipse', 'star', 'diamond', 'heart', 'cross', 'pentagon', 'hexagon']
+        self.colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'brown', 'black', 'grey']
+        self.size = backdoor_size  # 形状的大小
+        self.orig_image_size = orig_image_size
+        self.mode = mode
+
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, item):
+        image, label = self.dataset[item]
+        # logging.info(f"image:{type(image)}, label:{type(label)} ")
+        image = transforms.ToPILImage()(image)
+        x, y = random.randint(0, self.orig_image_size - self.size), \
+            random.randint(0, self.orig_image_size - self.size)
+        if self.mode == "seq":
+            shape = self.shapes[label]
+        elif self.mode == "random":
+            shape = random.choice(self.shapes)
+        else:
+            raise NotImplementedError
+
+        color = random.choice(self.colors)
+        image_with_shape = add_shape(image, shape, (x, y), self.size, color)
+
+        return transforms.ToTensor()(image_with_shape), label
+
 def get_dataset(args):
     """ Returns train and test datasets and a user group which is a dict where
     the keys are the user index and the values are the corresponding data for
